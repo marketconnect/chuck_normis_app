@@ -11,6 +11,7 @@ import 'workout_timer_screen.dart';
 import 'workout_notes_screen.dart';
 import 'workout_preview_screen.dart';
 import 'agent_entry.dart';
+import 'settings_screen.dart';
 import 'dart:math';
 
 // The main screen widget
@@ -197,41 +198,53 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         ],
       );
     }
+    final hasMessages = context.watch<AgentEntryNotifier>().messages.isNotEmpty;
 
     return AppBar(
       title: isWorkoutsTab
           ? Text('Тренировки: ${_sessions.length}')
           : const SizedBox.shrink(),
-      actions: [
-        if (!isWorkoutsTab)
-          IconButton(
-            icon: const Icon(Icons.cleaning_services_outlined),
-            tooltip: 'Очистить историю',
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Очистить историю?'),
-                  content: const Text(
-                    'Будут удалены все сообщения, кроме трех последних.',
+      leading: (!isWorkoutsTab && hasMessages)
+          ? IconButton(
+              icon: const Icon(Icons.cleaning_services_outlined),
+              tooltip: 'Очистить историю',
+              onPressed: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Очистить историю?'),
+                    content: const Text(
+                      'Будут удалены все сообщения, кроме трех последних.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Отмена'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Очистить'),
+                      ),
+                    ],
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Отмена'),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Очистить'),
-                    ),
-                  ],
-                ),
-              );
-              if (confirmed == true && mounted) {
-                await context.read<AgentEntryNotifier>().clearOldMessages();
-              }
-            },
-          ),
+                );
+                if (confirmed == true && mounted) {
+                  await context.read<AgentEntryNotifier>().clearOldMessages();
+                }
+              },
+            )
+          : null,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.settings),
+          tooltip: 'Настройки',
+          onPressed: () {
+            HapticFeedback.selectionClick();
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            );
+          },
+        ),
       ],
     );
   }
