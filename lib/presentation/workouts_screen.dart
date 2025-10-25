@@ -78,11 +78,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final isWorkoutsTab = _index == 0;
 
     return Scaffold(
-      appBar: _buildAppBar(cs, isWorkoutsTab),
+      appBar: _buildAppBar(isWorkoutsTab),
       body: switch (_index) {
         0 => _buildWorkoutsBody(),
         1 => const AgentEntry(),
@@ -154,9 +153,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
           : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        backgroundColor: cs.surfaceContainer,
-        shadowColor: Colors.black,
-
         onDestinationSelected: (i) {
           HapticFeedback.selectionClick();
           setState(() => _index = i);
@@ -181,12 +177,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             label: '',
           ),
         ],
-        indicatorColor: cs.secondaryContainer,
       ),
     );
   }
 
-  AppBar _buildAppBar(ColorScheme cs, bool isWorkoutsTab) {
+  AppBar _buildAppBar(bool isWorkoutsTab) {
     if (_isSelectionMode) {
       return AppBar(
         title: const Text('Выберите тренировки'),
@@ -207,11 +202,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       title: isWorkoutsTab
           ? Text('Тренировки: ${_sessions.length}')
           : const SizedBox.shrink(),
-      centerTitle: false,
-      backgroundColor: cs.surfaceContainer,
-      scrolledUnderElevation: 2.0,
-      shadowColor: Colors.black,
-      surfaceTintColor: Colors.transparent,
       actions: [
         if (!isWorkoutsTab)
           IconButton(

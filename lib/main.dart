@@ -14,6 +14,7 @@ import 'package:chuck_normis_app/domain/repositories/chat_repository.dart';
 import 'package:chuck_normis_app/domain/repositories/workout_repository.dart';
 import 'package:flutter/material.dart';
 import 'presentation/workouts_screen.dart';
+import 'package:chuck_normis_app/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,8 +26,6 @@ void main() async {
   }
   runApp(AppWrapper(clientId: clientId));
 }
-
-const _seed = Color(0xFF6750A4); // fixed seed, no placeholders
 
 class AppWrapper extends StatelessWidget {
   final String clientId;
@@ -72,15 +71,12 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        final ColorScheme lightScheme =
-            lightDynamic ?? ColorScheme.fromSeed(seedColor: _seed);
-        final ColorScheme darkScheme =
-            darkDynamic ??
-            ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.dark);
+        final (ThemeData lightTheme, ThemeData darkTheme) =
+            AppTheme.fromDynamic(lightDynamic, darkDynamic);
 
         return MaterialApp(
-          theme: ThemeData(colorScheme: lightScheme),
-          darkTheme: ThemeData(colorScheme: darkScheme),
+          theme: lightTheme,
+          darkTheme: darkTheme,
           themeMode: ThemeMode.system,
           home: const WorkoutsScreen(),
         );
