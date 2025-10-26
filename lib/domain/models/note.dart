@@ -19,11 +19,11 @@ class Note {
     required this.textContent,
     this.tags = const [],
     this.moodEmoji,
-    this.photoPaths = const [],
+    List<String>? photoPaths,
     this.isHiddenFromAi = false,
     this.workoutId,
     this.workoutName,
-  });
+  }) : photoPaths = photoPaths ?? [];
 
   Map<String, dynamic> toMap() {
     return {
@@ -76,9 +76,9 @@ class Note {
       type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,
       textContent: textContent ?? this.textContent,
-      tags: tags ?? this.tags,
+      tags: tags ?? List.from(this.tags),
       moodEmoji: moodEmoji ?? this.moodEmoji,
-      photoPaths: photoPaths ?? this.photoPaths,
+      photoPaths: photoPaths ?? List.from(this.photoPaths),
       isHiddenFromAi: isHiddenFromAi ?? this.isHiddenFromAi,
       workoutId: workoutId ?? this.workoutId,
       workoutName: workoutName ?? this.workoutName,

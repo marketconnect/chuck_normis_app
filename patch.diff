@@ -1,0 +1,31 @@
+diff --git a/lib/domain/models/note.dart b/lib/domain/models/note.dart
+index 9142721..020412b 100644
+--- a/lib/domain/models/note.dart
++++ b/lib/domain/models/note.dart
+@@ -14,12 +14,12 @@
+     required this.createdAt,
+     required this.textContent,
+     this.tags = const [],
+     this.moodEmoji,
+-    this.photoPaths = const [],
++    List<String>? photoPaths,
+     this.isHiddenFromAi = false,
+     this.workoutId,
+     this.workoutName,
+-  });
++  }) : photoPaths = photoPaths ?? [];
+ 
+   Map<String, dynamic> toMap() {
+     return {
+@@ -70,9 +70,9 @@
+       type: type ?? this.type,
+       createdAt: createdAt ?? this.createdAt,
+       textContent: textContent ?? this.textContent,
+-      tags: tags ?? this.tags,
++      tags: tags ?? List.from(this.tags),
+       moodEmoji: moodEmoji ?? this.moodEmoji,
+-      photoPaths: photoPaths ?? this.photoPaths,
++      photoPaths: photoPaths ?? List.from(this.photoPaths),
+       isHiddenFromAi: isHiddenFromAi ?? this.isHiddenFromAi,
+       workoutId: workoutId ?? this.workoutId,
+       workoutName: workoutName ?? this.workoutName,
