@@ -182,7 +182,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
           const NavigationDestination(
             icon: Icon(Icons.note_alt_outlined),
             selectedIcon: Icon(Icons.note_alt),
-            label: 'Заметки',
+            label: '',
           ),
         ],
       ),
