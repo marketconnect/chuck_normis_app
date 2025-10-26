@@ -168,12 +168,12 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
           ),
           NavigationDestination(
             icon: Image.asset(
-              'assets/icon/icon_nav.webp',
+              'assets/icon/icon_nav-1.webp',
               width: 24,
               height: 24,
             ),
             selectedIcon: Image.asset(
-              'assets/icon/icon_nav.webp',
+              'assets/icon/icon_nav-1.webp',
               width: 24,
               height: 24,
             ),

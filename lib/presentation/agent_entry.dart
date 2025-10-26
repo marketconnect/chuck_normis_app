@@ -128,10 +128,7 @@ class _AgentEntryViewState extends State<AgentEntryView> {
         Expanded(
           child: TextField(
             controller: _textController,
-            decoration: InputDecoration(
-              labelText: 'Позвать Чака',
-              // prefixIcon: Image.asset('assets/icon/icon_nav.webp', width: 24, height: 24),
-            ),
+            decoration: InputDecoration(labelText: 'Позвать Чака'),
             onSubmitted: (_) => _sendMessage(notifier),
           ),
         ),

@@ -53,7 +53,7 @@ flutter:
     - assets/sounds/door-knock-solid-door.mp3
     - assets/sounds/short-ringing-notification-sound.mp3
     - assets/models/
-    - assets/icon/icon_nav.webp
+    - assets/icon/icon_nav-1.webp
 
 flutter_launcher_icons:
   android: true
