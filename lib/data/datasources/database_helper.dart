@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:chuck_normis_app/domain/models/chat_message.dart';
+import 'package:chuck_normis_app/domain/models/note.dart';
+import 'package:chuck_normis_app/domain/models/training_info.dart';
 import 'dart:convert';
 import 'package:chuck_normis_app/domain/models/training_session.dart';
 
@@ -21,42 +23,42 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(path, version: 2, onCreate: _createDB, onUpgrade: _onUpgradeDB);
   }
 
   Future _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE training_sessions(
+    await db.execute(
+      '''CREATE TABLE training_sessions(
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         notes TEXT,
         workout_type TEXT,
         rounds_config_json TEXT
-      )
-    ''');
+      )'''
+    );
 
-    await db.execute('''
-      CREATE TABLE blocks(
+    await db.execute(
+ '''CREATE TABLE blocks(
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL,
         type TEXT NOT NULL,
         label TEXT,
         sort_order INTEGER NOT NULL,
              FOREIGN KEY (session_id) REFERENCES training_sessions (id) ON DELETE CASCADE
-   )
- ''');
-    await db.execute('''
-   CREATE TABLE sets(
+   )'''
+ );
+    await db.execute(
+ '''CREATE TABLE sets(
      id TEXT PRIMARY KEY,
      block_id TEXT NOT NULL,
      repeat INTEGER NOT NULL,
      label TEXT,
      sort_order INTEGER NOT NULL,
      FOREIGN KEY (block_id) REFERENCES blocks (id) ON DELETE CASCADE
-   )
- ''');
-    await db.execute('''
-      CREATE TABLE set_items(
+   )'''
+ );
+    await db.execute(
+      '''CREATE TABLE set_items(
         id TEXT PRIMARY KEY,
         set_id TEXT NOT NULL,
         type TEXT NOT NULL, -- 'exercise' or 'rest'
@@ -75,15 +77,42 @@ class DatabaseHelper {
         -- Rest specific fields
         reason TEXT,
         FOREIGN KEY (set_id) REFERENCES sets (id) ON DELETE CASCADE
-          )
-    ''');
+          )'''
+    );
 
-    await db.execute('''
-      CREATE TABLE chat_messages(
+    await db.execute(
+      '''CREATE TABLE chat_messages(
         id TEXT PRIMARY KEY,
         text TEXT NOT NULL,
         sender TEXT NOT NULL,
         timestamp INTEGER NOT NULL
+      )'''
+    );
+
+    await _createNotesTable(db);
+  }
+
+  Future _onUpgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _createNotesTable(db);
+    }
+  }
+
+  Future<void> _createNotesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE notes(
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        date TEXT NOT NULL,
+        time TEXT NOT NULL,
+        text_content TEXT NOT NULL,
+        tags TEXT,
+        mood_emoji TEXT,
+        photo_path TEXT,
+        is_hidden_from_ai INTEGER NOT NULL,
+        workout_id TEXT,
+        FOREIGN KEY (workout_id) REFERENCES training_sessions (id) ON DELETE SET NULL
       )
     ''');
   }
@@ -368,5 +397,61 @@ class DatabaseHelper {
         whereArgs: idsToDelete,
       );
     }
+  }
+
+  // --- Notes CRUD ---
+
+  Future<void> saveNote(Note note) async {
+    final db = await instance.database;
+    await db.insert(
+      'notes',
+      note.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Note>> getAllNotes() async {
+    final db = await instance.database;
+    // Join with training_sessions to get the workout name
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT n.*, ts.name as workout_name 
+      FROM notes n
+      LEFT JOIN training_sessions ts ON n.workout_id = ts.id
+      ORDER BY n.created_at DESC
+    ''');
+
+    return List.generate(maps.length, (i) {
+      return Note.fromMap(maps[i]);
+    });
+  }
+
+  Future<Note?> getNoteById(String id) async {
+    final db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT n.*, ts.name as workout_name 
+      FROM notes n
+      LEFT JOIN training_sessions ts ON n.workout_id = ts.id
+      WHERE n.id = ?
+    ''', [id]);
+
+    if (maps.isNotEmpty) {
+      return Note.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  Future<void> deleteNote(String id) async {
+    final db = await instance.database;
+    await db.delete(
+      'notes',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<List<TrainingInfo>> getAllTrainings() async {
+    final db = await instance.database;
+    final maps = await db.query('training_sessions', columns: ['id', 'name'], orderBy: 'name');
+    return maps.map((map) => TrainingInfo(id: map['id'] as String, name: map['name'] as String)).toList();
   }
 }

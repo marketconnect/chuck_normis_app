@@ -2,6 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:provider/provider.dart';
+import 'package:chuck_normis_app/application/notes_notifier.dart';
 import 'package:chuck_normis_app/application/agent_entry_notifier.dart';
 import 'package:chuck_normis_app/conf.dart';
 import 'package:chuck_normis_app/data/datasources/database_helper.dart';
@@ -12,6 +13,8 @@ import 'package:chuck_normis_app/data/services/vosk_service.dart';
 import 'package:chuck_normis_app/data/services/websocket_service.dart';
 import 'package:chuck_normis_app/domain/repositories/chat_repository.dart';
 import 'package:chuck_normis_app/domain/repositories/workout_repository.dart';
+import 'package:chuck_normis_app/data/repositories/note_repository_impl.dart';
+import 'package:chuck_normis_app/domain/repositories/note_repository.dart';
 import 'package:flutter/material.dart';
 import 'presentation/workouts_screen.dart';
 import 'package:chuck_normis_app/theme.dart';
@@ -51,12 +54,20 @@ class AppWrapper extends StatelessWidget {
         ProxyProvider<DatabaseHelper, WorkoutRepository>(
           update: (_, dbHelper, _) => WorkoutRepositoryImpl(dbHelper),
         ),
+        ProxyProvider<DatabaseHelper, NoteRepository>(
+          update: (_, dbHelper, _) => NoteRepositoryImpl(dbHelper),
+        ),
         ProxyProvider2<WebSocketService, DatabaseHelper, ChatRepository>(
           update: (_, ws, db, _) => ChatRepositoryImpl(ws, db),
         ),
         ChangeNotifierProvider(
           create: (context) =>
               AgentEntryNotifier(context.read<ChatRepository>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => NotesNotifier(
+            context.read<NoteRepository>(),
+          ),
         ),
       ],
       child: const App(),

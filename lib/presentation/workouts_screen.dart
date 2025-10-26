@@ -12,6 +12,7 @@ import 'workout_notes_screen.dart';
 import 'workout_preview_screen.dart';
 import 'agent_entry.dart';
 import 'settings_screen.dart';
+import 'notes_screen.dart';
 import 'dart:math';
 
 // The main screen widget
@@ -86,6 +87,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       body: switch (_index) {
         0 => _buildWorkoutsBody(),
         1 => const AgentEntry(),
+        2 => const NotesScreen(),
         _ => const SizedBox.shrink(),
       },
       floatingActionButton: isWorkoutsTab
@@ -176,6 +178,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               height: 24,
             ),
             label: '',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.note_alt_outlined),
+            selectedIcon: Icon(Icons.note_alt),
+            label: 'Заметки',
           ),
         ],
       ),
